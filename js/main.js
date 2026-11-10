@@ -411,6 +411,26 @@ position > L
     const I = section.I;
     const c = section.c;
 
+    // ======================================
+    // USER-CHOSEN STRESS POINT
+    // ======================================
+
+    const pointX = Number(document.getElementById("pointX").value);
+    const pointY = Number(document.getElementById("pointY").value);
+
+    if (!Number.isFinite(pointX) || pointX < 0 || pointX > L) {
+        alert("Stress point position must be between 0 and the beam length.");
+        return false;
+    }
+
+    if (!Number.isFinite(pointY) || Math.abs(pointY) > c) {
+        alert(
+            "Distance from neutral axis must be between -" +
+            c.toFixed(2) + " and " + c.toFixed(2) + " mm."
+        );
+        return false;
+    }
+
     document.getElementById("sectionI").textContent =
         I.toLocaleString("en-IN", {
             maximumFractionDigits: 2
@@ -482,9 +502,7 @@ position > L
 
     const n = 400;
 
-    for (let i = 0; i <= n; i++) {
-
-        const x = L * i / n;
+    function shearMomentAt(x) {
 
         let V = 0;
         let M = 0;
@@ -584,6 +602,15 @@ position > L
 
         }
 
+        return { V, M };
+
+    }
+
+    for (let i = 0; i <= n; i++) {
+
+        const x = L * i / n;
+        const { V, M } = shearMomentAt(x);
+
         xValues.push(x);
         shearValues.push(V);
         momentValues.push(M);
@@ -612,6 +639,17 @@ position > L
         ? yieldStrength / maxStress
         : Infinity;
 
+    // Stress at the user-chosen point
+    // y is positive above the neutral axis. M is positive when sagging,
+    // so sagging puts the top in compression: sigma = -M*y/I
+    // (+ve = tension, -ve = compression)
+
+    const pointMoment = shearMomentAt(pointX).M;
+
+    let pointStress = 0 - (pointMoment * 1000 * pointY) / I;
+
+    if (Math.abs(pointStress) < 1e-9) pointStress = 0;
+
     // ======================================
     // DISPLAY RESULTS
     // ======================================
@@ -635,6 +673,20 @@ position > L
 
     document.getElementById("maxStress").textContent =
         maxStress.toFixed(2);
+
+    document.getElementById("pointMoment").textContent =
+        pointMoment.toFixed(2);
+
+    document.getElementById("pointMomentNote").textContent =
+        "N·m at x = " + pointX + " m";
+
+    document.getElementById("pointStress").textContent =
+        pointStress.toFixed(2);
+
+    document.getElementById("pointStressNote").textContent =
+        "MPa (" +
+        (pointStress > 0 ? "tension" : pointStress < 0 ? "compression" : "zero stress") +
+        ") at y = " + pointY + " mm";
 
     document.getElementById("factorSafety").textContent =
         Number.isFinite(factorOfSafety)
@@ -817,9 +869,25 @@ position > L
             },
             fill: "tozeroy",
             fillcolor: "rgba(245,158,11,0.15)"
+        },
+
+        {
+            x: [pointX],
+            y: [pointMoment],
+            type: "scatter",
+            mode: "markers",
+            marker: {
+                color: "#38bdf8",
+                size: 11,
+                line: { color: "#ffffff", width: 1.5 }
+            },
+            hovertemplate:
+                "Chosen point<br>x = %{x} m<br>M = %{y:.2f} N·m<extra></extra>"
         }
 
     ], {
+
+        showlegend: false,
 
         title: "Bending Moment (N·m)",
 
