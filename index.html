@@ -147,6 +147,21 @@
                     </p>
 
                 </div>
+
+                <!-- USER-CHOSEN STRESS POINT -->
+
+                <h3>Stress at a Chosen Point</h3>
+
+                <label>Position Along Beam, x (m)</label>
+                <input type="number" id="pointX" value="0" min="0" step="any">
+
+                <label>Distance from Neutral Axis, y (mm)</label>
+                <input type="number" id="pointY" value="25" step="any">
+
+                <p style="font-size:12px;color:#94a3b8;">
+                    y is positive above the neutral axis and negative below it.
+                </p>
+
                     </div>
 </div>
                 <button id="analyzeBtn">ANALYZE BEAM</button>
@@ -211,6 +226,19 @@
                         <h2 id="factorSafety">--</h2>
                         <small>FoS</small>
                     </div>
+
+                    <div class="result-card">
+                        <span>Bending Moment at Chosen Point</span>
+                        <h2 id="pointMoment">--</h2>
+                        <small id="pointMomentNote">N·m</small>
+                    </div>
+
+                    <div class="result-card">
+                        <span>Bending Stress at Chosen Point</span>
+                        <h2 id="pointStress">--</h2>
+                        <small id="pointStressNote">MPa</small>
+                    </div>
+
 
                     <div class="result-card" id="safetyCard">
                         <span>Structural Safety</span>
