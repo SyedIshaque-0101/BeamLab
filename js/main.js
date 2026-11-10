@@ -88,7 +88,7 @@ function addLoadCard() {
 
             <label>Point Load (N)</label>
             <input type="number" class="load-magnitude"
-                   value="500" min="0">
+       value="500" step="any">
 
             <label>Position from Left (m)</label>
             <input type="number" class="load-position"
@@ -337,10 +337,10 @@ function analyzeBeam() {
 
             if (
                 !Number.isFinite(magnitude) ||
-                !Number.isFinite(position) ||
-                magnitude <= 0 ||
-                position < 0 ||
-                position > L
+!Number.isFinite(position) ||
+magnitude === 0 ||
+position < 0 ||
+position > L
             ) {
                 alert("Please enter a valid point load and position.");
                 return false;
@@ -1130,26 +1130,43 @@ displayLoads.forEach((item, index) => {
         const labelAnchor = loadX > 550 ? "end" : "start";
         const labelX = loadX > 550 ? loadX - 10 : loadX + 10;
 
-        load += `
-            <!-- Point load arrow -->
+        // Determine arrow direction from force sign
 
-            <line
-                x1="${loadX}" y1="${topY + 5}"
-                x2="${loadX}" y2="85"
-                stroke="#ef4444"
-                stroke-width="2.5"
-            />
+const isUpward = item.magnitude < 0;
 
-            <path
-                d="M ${loadX - 7} 75
-                   L ${loadX} 88
-                   L ${loadX + 7} 75"
-                fill="none"
-                stroke="#ef4444"
-                stroke-width="2.5"
-            />
+const arrowStartY = isUpward ? 145 : topY + 5;
+const arrowEndY = isUpward ? 112 : 88;
 
-            <!-- Load label -->
+const arrowHead = isUpward
+    ? `
+        M ${loadX - 7} 125
+        L ${loadX} 112
+        L ${loadX + 7} 125
+      `
+    : `
+        M ${loadX - 7} 75
+        L ${loadX} 88
+        L ${loadX + 7} 75
+      `;
+
+load += `
+    <!-- Point load arrow -->
+
+    <line
+        x1="${loadX}" y1="${arrowStartY}"
+        x2="${loadX}" y2="${arrowEndY}"
+        stroke="#ef4444"
+        stroke-width="2.5"
+    />
+
+    <path
+        d="${arrowHead}"
+        fill="none"
+        stroke="#ef4444"
+        stroke-width="2.5"
+    />
+
+    <!-- Load label -->
 
             <text
                 x="${labelX}"
