@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>BeamLab | Structural Mechanics</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Plotly graph library -->
+    <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+</head>
+
+<body>
+
+    <header>
+        <div class="logo">Beam<span>Lab.</span></div>
+        <div class="subtitle">STRUCTURAL MECHANICS SIMULATOR</div>
+    </header>
+
+    <main>
+        <section id="configurationView">
+        <section class="intro">
+            <h1>Beam Analysis Studio</h1>
+            <p>Explore beam behaviour under different loading conditions.</p>
+        </section>
+
+        <div class="workspace configuration-workspace">
+
+            <!-- LEFT PANEL: INPUTS -->
+
+            <section class="panel controls">
+
+                <h2>Beam Configuration</h2>
+                <div class="config-grid">
+    <div class="config-column">
+                <label>Support Configuration</label>
+                <select id="beamType">
+                    <option value="cantilever">Cantilever</option>
+                    <option value="simply">Simply Supported</option>
+                </select>
+
+                
+                
+
+                <h3>Geometry</h3>
+
+                <label>Beam Length (m)</label>
+                <input type="number" id="length" value="2" min="0.1" step="0.1">
+
+                <h3>Applied Loads</h3>
+
+<div id="loadsContainer"></div>
+
+<button type="button" id="addLoadBtn" class="add-load-button">
+    + ADD LOAD
+</button>
+
+
+
+
+
+
+
+    </div>
+
+    <div class="config-column">
+
+                <h3>Material Properties</h3>
+
+<label>Select Material</label>
+<select id="materialType">
+    <option value="steel">Structural Steel</option>
+    <option value="aluminium">Aluminium 6061-T6</option>
+    <option value="stainless">Stainless Steel 304</option>
+    <option value="copper">Copper</option>
+    <option value="titanium">Titanium Ti-6Al-4V</option>
+    <option value="custom">Custom</option>
+</select>
+
+<label>Young's Modulus (GPa)</label>
+<input type="number" id="youngs" value="200" min="1" step="any">
+
+<label>Yield Strength (MPa)</label>
+<input type="number" id="yield" value="250" min="1" step="any">
+
+
+                <h3>Cross-Section Configuration</h3>
+
+                <label>Cross-Section Type</label>
+                <select id="sectionType">
+                    <option value="rectangle">Rectangular</option>
+                    <option value="circle">Circular</option>
+                    <option value="iSection">I-Section</option>
+                </select>
+
+                <div id="rectangleInputs">
+
+                    <label>Width (mm)</label>
+                    <input type="number" id="width" value="50" min="1">
+
+                    <label>Height (mm)</label>
+                    <input type="number" id="height" value="100" min="1">
+
+                </div>
+
+                <div id="circleInputs" style="display:none">
+
+                    <label>Diameter (mm)</label>
+                    <input type="number" id="diameter" value="50" min="1">
+
+                </div>
+
+                <div id="iSectionInputs" style="display:none">
+
+                    <label>Overall Height (mm)</label>
+                    <input type="number" id="iHeight" value="150" min="1">
+
+                    <label>Flange Width (mm)</label>
+                    <input type="number" id="flangeWidth" value="100" min="1">
+
+                    <label>Flange Thickness (mm)</label>
+                    <input type="number" id="flangeThickness" value="10" min="1">
+
+                    <label>Web Thickness (mm)</label>
+                    <input type="number" id="webThickness" value="6" min="1">
+
+                </div>
+                <!-- CALCULATED SECTION PROPERTIES -->
+
+                <div class="section-properties">
+
+                    <h3>Calculated Section Properties</h3>
+
+                    <p>
+                        Second Moment of Area (I):
+                        <strong id="sectionI">--</strong>
+                        mm⁴
+                    </p>
+
+                    <p>
+                        Extreme-Fibre Distance (c):
+                        <strong id="sectionC">--</strong>
+                        mm
+                    </p>
+
+                </div>
+                    </div>
+</div>
+                <button id="analyzeBtn">ANALYZE BEAM</button>
+            </section>
+                </div>
+            </section>
+
+            <section id="resultsView" hidden>
+
+    <div class="workspace results-workspace">
+
+        <section class="panel visualization">
+
+            <div class="results-heading">
+                <div>
+                    <h2>Analysis Results</h2>
+                    <p>Beam response and structural safety analysis.</p>
+                </div>
+
+                <button type="button" id="backBtn" class="back-button">
+                    ← EDIT CONFIGURATION
+                </button>
+            </div>
+
+                <h2>Beam Visualization</h2>
+
+                <div id="beamDrawing"></div>
+
+                <div class="results">
+
+                    <div class="result-card">
+                        <span>Left Reaction</span>
+                        <h2 id="reactionA">--</h2>
+                        <small>N</small>
+                    </div>
+
+                    <div class="result-card">
+                        <span>Right Reaction / Fixed Support</span>
+                        <h2 id="reactionB">--</h2>
+                        <small>N</small>
+                    </div>
+
+                    <div class="result-card">
+                        <span>Maximum Shear Force</span>
+                        <h2 id="maxShear">--</h2>
+                        <small>N</small>
+                    </div>
+
+                    <div class="result-card">
+                        <span>Maximum Bending Moment</span>
+                        <h2 id="maxMoment">--</h2>
+                        <small>N·m</small>
+                    </div>
+                    <div class="result-card">
+                        <span>Maximum Bending Stress</span>
+                        <h2 id="maxStress">--</h2>
+                        <small>MPa</small>
+                    </div>
+
+                    <div class="result-card">
+                        <span>Factor of Safety</span>
+                        <h2 id="factorSafety">--</h2>
+                        <small>FoS</small>
+                    </div>
+
+                    <div class="result-card" id="safetyCard">
+                        <span>Structural Safety</span>
+                        <h2 id="safetyStatus">--</h2>
+                        <small>Based on bending yield</small>
+                    </div>
+                </div>
+
+                <h2>Shear Force Diagram</h2>
+                <div id="sfd" class="graph"></div>
+
+                <h2>Bending Moment Diagram</h2>
+                <div id="bmd" class="graph"></div>
+
+            </section>
+
+        </div>
+        </section>
+    </main>
+
+    <footer>
+        BeamLab | Mechanics of Solids Project
+    </footer>
+
+    <script src="js/main.js"></script>
+
+</body>
+
+</html>
